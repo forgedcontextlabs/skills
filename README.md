@@ -43,6 +43,17 @@ hermes skills inspect github/forgedcontextlabs/skills <skill-name>
 - **Log timestamp parsing** — journalctl ranges, UTC vs local, epoch conversion
 - **NTP/sync troubleshooting** — `chronyc tracking`, `timedatectl show-timesync`
 
+### Configuration
+
+Set your preferred output format once, use it everywhere:
+
+```bash
+# In ~/.hermes/.env
+TEMPORAL_FORMAT=iso   # verbose | iso | compact | human12 | human24 | utc | epoch | rfc3339
+```
+
+The agent falls back to `USER.md` profile memory, then defaults to `verbose`. Full format reference and decision rules are in the [skill doc](devops/temporal-awareness/SKILL.md).
+
 ### Example: Before and After
 
 | Without Skill | With Skill |
