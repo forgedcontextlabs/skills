@@ -5,12 +5,19 @@ Reusable procedural memory for [Hermes Agent](https://hermes-agent.nousresearch.
 ## Install
 
 ```bash
-# Install any skill from this repo
+# Add this repo as a skill source (instant, local)
+hermes skills tap add forgedcontextlabs/skills
+
+# Install any skill
 hermes skills install github/forgedcontextlabs/skills <skill-name>
 
-# Or inspect before installing
+# Or preview before installing
 hermes skills inspect github/forgedcontextlabs/skills <skill-name>
 ```
+
+> **Safety:** Skills are markdown, not binaries, but the agent may execute commands inside them. Always inspect before installing. See [SECURITY.md](SECURITY.md) for our verification process.
+
+> **Hub indexing:** This repo is available immediately via `tap add`. Global search (`hermes skills search`) indexes periodically — typically within 24–48 hours.
 
 ## Available Skills
 
