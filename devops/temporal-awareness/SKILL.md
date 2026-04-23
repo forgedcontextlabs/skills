@@ -22,6 +22,76 @@ Use `timedatectl` when you also need NTP sync status or DST details:
 timedatectl status
 ```
 
+## Output Format Configuration
+
+The default format is verbose. Pick the right format for the context, or configure a personal default:
+
+### Personal Default (Recommended)
+
+Set once, used everywhere. The agent checks these in order:
+
+1. **Environment variable** (`~/.hermes/.env`):
+   ```bash
+   TEMPORAL_FORMAT=iso
+   ```
+   Valid values: `verbose` | `iso` | `compact` | `human12` | `human24` | `utc` | `epoch` | `rfc3339`
+
+2. **User profile** (`~/.hermes/memories/USER.md`):
+   ```markdown
+   ## Preferences
+   - Time format: human24
+   - Timezone display: offset only
+   ```
+
+3. **Fallback:** `verbose` format
+
+### Preset Formats
+
+| Format | Command | Output Example | Best For |
+|--------|---------|---------------|----------|
+| **Verbose** | `date +"%Y-%m-%d %H:%M:%S %Z (%:z)"` | `2026-04-23 15:32:18 EDT (-04:00)` | Debugging, multi-host sync |
+| **ISO 8601** | `date -Iseconds` | `2026-04-23T15:32:18-04:00` | APIs, filenames, structured data |
+| **Compact** | `date +"%Y%m%d_%H%M%S"` | `20260423_153218` | Backups, no spaces |
+| **Human (12h)** | `date +"%b %d %I:%M %p %Z"` | `Apr 23 03:32 PM EDT` | User-facing messages |
+| **Human (24h)** | `date +"%Y-%m-%d %H:%M %Z"` | `2026-04-23 15:32 EDT` | International contexts |
+| **UTC** | `date -u +"%Y-%m-%d %H:%M:%S UTC"` | `2026-04-23 19:32:18 UTC` | Log correlation |
+| **Epoch** | `date +%s` | `1776973684` | Precise comparison |
+| **RFC 3339** | `date +"%Y-%m-%dT%H:%M:%S%:z"` | `2026-04-23T15:32:18-04:00` | JSON APIs, web standards |
+
+### Customizing
+
+Combine specifiers as needed:
+
+| Specifier | Meaning | Example |
+|-----------|---------|---------|
+| `%Y` | 4-digit year | `2026` |
+| `%m` | Month (01-12) | `04` |
+| `%d` | Day (01-31) | `23` |
+| `%H` | Hour 24h (00-23) | `15` |
+| `%I` | Hour 12h (01-12) | `03` |
+| `%M` | Minute (00-59) | `32` |
+| `%S` | Second (00-59) | `18` |
+| `%p` | AM/PM | `PM` |
+| `%Z` | Timezone abbreviation | `EDT` |
+| `%z` | Numeric offset | `-0400` |
+| `%:z` | Numeric offset with colon | `-04:00` |
+| `%a` | Short weekday | `Thu` |
+| `%b` | Short month | `Apr` |
+
+**Example:** A filename-friendly timestamp with timezone:
+```bash
+date +"%Y%m%d_%H%M%S_%Z"
+# → 20260423_153218_EDT
+```
+
+### Agent Decision Rule
+
+- **Talking to a user** → Human format (12h or 24h based on their locale)
+- **Writing to a log or database** → ISO 8601 or epoch
+- **Comparing across hosts** → UTC or epoch
+- **Naming files** → Compact or ISO 8601
+- **Debugging timezone issues** → Verbose with `%:z`
+
 ## Timezone: Never Assume
 
 ### Detect Local Timezone
