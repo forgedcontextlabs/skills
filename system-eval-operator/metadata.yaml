@@ -1,0 +1,76 @@
+name: system-eval-operator
+version: 1.2.0
+status: stable
+package_type: portable_hermes_skill_bundle
+portability_model:
+  optimized_policy_mode: Use SKILL.md plus external ROUTING.md and NUDGE.md policy
+    records.
+  embedded_fallback_mode: Use SKILL.md only; embedded policies provide routing and
+    behavior guidance when external policy storage is unavailable.
+  recommended_for_hermes_brainstack: optimized_policy_mode
+  recommended_for_unknown_provider: embedded_fallback_mode or provider-specific adapter
+roles:
+  skill:
+    file: SKILL.md
+    purpose: Passive skill prompt loaded by an agent when invoked.
+    portable: true
+    fallback_contains_embedded_policies: true
+    storage_hint: Install as a skill file. Do not store as normal user memory unless
+      the platform has no skill filesystem.
+  routing:
+    file: ROUTING.md
+    type: agent_routing_policy
+    scope: skill_activation
+    purpose: Describes when this skill should be activated.
+    portable_content: true
+    provider_specific_storage: true
+    storage_hint: Store as policy/control guidance, not as user preference or conversational
+      memory.
+  nudge:
+    file: NUDGE.md
+    type: skill_behavior_policy
+    scope: only_when_skill_loaded
+    purpose: Describes how the agent should behave after this skill is activated.
+    portable_content: true
+    provider_specific_storage: true
+    storage_hint: Apply only during this skill invocation. Do not globally smear this
+      behavior across unrelated tasks.
+  readme:
+    file: README.md
+    purpose: Human and agent-readable installation and portability instructions.
+runtime_flow_optimized_policy_mode:
+- User message arrives.
+- Agent checks routing policies.
+- If this skill matches, agent loads system-eval-operator.
+- Agent loads SKILL.md.
+- Agent applies NUDGE.md only for this invocation.
+- Agent follows the skill protocol.
+runtime_flow_embedded_fallback_mode:
+- Agent reads SKILL.md.
+- Agent uses the Embedded Policies section for activation and behavior guidance.
+- Agent follows the skill protocol without external policy records.
+load_order:
+- SKILL.md
+- NUDGE.md
+provider_agnostic_policy_mapping:
+  routing:
+    meaning: skill activation policy
+    not_memory_type: user preference
+    adapter_hint: Index or store under routing/control/policy namespace.
+  nudge:
+    meaning: skill execution guidance
+    not_memory_type: user preference
+    adapter_hint: Inject or retrieve only after this skill is selected.
+brainstack_policy_hints:
+  shelf: operating
+  record_type: canonical_policy
+  do_not_summarize_as_user_preference: true
+  keep_routing_and_nudge_separate: true
+  routing_memory_type: agent_routing_policy
+  nudge_memory_type: skill_behavior_policy
+replacement_guidance:
+  replace_skill_file: true
+  adopt_routing_policy: recommended when external policy storage exists
+  adopt_behavior_nudge: recommended when external policy storage exists
+  embedded_fallback_available: true
+category: evaluation
